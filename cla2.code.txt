@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<head>
+    <title>AI Chatbot Support</title>
+    <link rel="stylesheet" href="cla2.css">
+</head>
+<body>
+    <h1>Customer Support Chatbot</h1>
+
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <p class="bot-message">Hello! How can I assist you today?</p>
+        </div>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <h2>FAQs</h2>
+    <div class="faq-container">
+        <details>
+            <summary>How do I reset my password?</summary>
+            <p>Click on "Forgot Password" on the login page and follow the instructions.</p>
+        </details>
+        <details>
+            <summary>How can I contact support?</summary>
+            <p>Use the "Contact Support" button below to send a message to our team.</p>
+        </details>
+    </div>
+
+    <button id="contact-btn">Contact Support</button>
+
+    <h2>Feedback</h2>
+    <form id="feedback-form">
+        <input type="text" id="name" placeholder="Your Name" required>
+        <textarea id="feedback" placeholder="Your Feedback" required></textarea>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script src="cla2.js"></script>
+</body>
+</html>
+                         
+
+                             CSS
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: green;
+}
+
+.chat-container {
+    width: 50%;
+    margin: auto;
+    background: purple;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px gray;
+}
+
+.chat-box {
+    height: 300px;
+    overflow-y: scroll;
+    border-bottom: 1px solid blanchedalmond;
+    padding: 10px;
+}
+
+.bot-message, .user-message {
+    padding: 5px;
+    border-radius: 5px;
+    margin: 5px 0;
+}
+
+.bot-message {
+    background: #ddd;
+    text-align: left;
+}
+
+.user-message {
+    background: #007bff;
+    color: white;
+    text-align: right;
+}
+
+#user-input {
+    width: 70%;
+    padding: 10px;
+}
+
+button {
+    padding: 10px;
+    background: blue;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.faq-container {
+    width: 50%;
+    margin: auto;
+    text-align: left;
+}
+
+details {
+    background: whitesmoke;
+    padding: 10px;
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+                                 JAVA SCRIPT  
+
+const apiKey = "your-openai-api-key-here"; // Replace with your actual OpenAI API key
+
+document.getElementById("feedback-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+    
+    let name = document.getElementById("name").value;
+    let feedback = document.getElementById("feedback").value;
+
+    alert("Thank you for your feedback, " + name + "!");
+});
+
+function sendMessage() {
+    let userInput = document.getElementById("user-input").value;
+    if (userInput.trim() === "") return;
+
+    let chatBox = document.getElementById("chat-box");
+    chatBox.innerHTML += `<p class="user-message">${userInput}</p>`;
+
+    fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: userInput }],
+            temperature: 0.7
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        let botResponse = data.choices[0].message.content || "Sorry, I didn't understand.";
+        chatBox.innerHTML += `<p class="bot-message">${botResponse}</p>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        chatBox.innerHTML += `<p class="bot-message">Error connecting to AI. Please try again later.</p>`;
+    });
+
+    document.getElementById("user-input").value = "";
+}
